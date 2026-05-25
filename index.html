@@ -25,6 +25,7 @@
     .hero-scroll  { position: relative; height: 250vh; }
     .hero-sticky  { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
     .hero-canvas  { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .hero-img     { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 
     .hero-logo {
       position: relative; z-index: 10;
@@ -149,7 +150,7 @@
 
   <section class="hero-scroll" id="heroSection">
     <div class="hero-sticky">
-      <canvas class="hero-canvas" id="heroCanvas"></canvas>
+      <img class="hero-img" id="heroImg" src="img/video/vid/video_00000.jpg" alt="" />
       <img class="hero-logo" src="img/logo.png" alt="Frères" />
 
       <div class="hero-text" id="heroText">
@@ -207,52 +208,35 @@
   <script>
     gsap.registerPlugin(ScrollTrigger);
 
+    // ── TOUCH DETECTION ────────────────────────────────────────────
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
     // ── FRAME SEQUENCE ─────────────────────────────────────────────
-    const canvas = document.getElementById('heroCanvas');
-    const ctx    = canvas.getContext('2d');
-    const TOTAL  = 73;
+    const heroImg = document.getElementById('heroImg');
+    const TOTAL   = 73;
+    const proxy   = { frame: 0 };
 
     const frames = Array.from({ length: TOTAL }, (_, i) => {
       const img = new Image();
-      img.src = `img/seq/frame_${String(i).padStart(5, '0')}.jpg`;
+      img.src = `img/video/vid/video_${String(i).padStart(5, '0')}.jpg`;
       return img;
     });
 
-    function resize() {
-      const dpr     = window.devicePixelRatio || 1;
-      canvas.width  = canvas.offsetWidth  * dpr;
-      canvas.height = canvas.offsetHeight * dpr;
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      draw(proxy.frame);
-    }
-
     function draw(index) {
-      const i   = Math.round(Math.max(0, Math.min(TOTAL - 1, index)));
-      const img = frames[i];
-      if (!img.complete || !img.naturalWidth) return;
-      const scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
-      const w = img.naturalWidth  * scale, h = img.naturalHeight * scale;
-      const x = (canvas.width  - w) / 2,  y = (canvas.height - h) / 2;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, x, y, w, h);
+      const i = Math.round(Math.max(0, Math.min(TOTAL - 1, index)));
+      heroImg.src = frames[i].src;
     }
 
-    frames[0].onload = () => draw(0);
-
-    const proxy = { frame: 0 };
+    gsap.to(proxy, {
+      frame: TOTAL - 1,
+      ease: 'none',
+      scrollTrigger: { trigger: '#heroSection', start: 'top top', end: '40% top', scrub: 2 },
+      onUpdate: () => draw(proxy.frame),
+    });
 
     gsap.to('.hero-logo', {
       opacity: 0, scale: 0.88, y: -40, ease: 'power3.inOut',
       scrollTrigger: { trigger: '#heroSection', start: 'top top', end: '10% top', scrub: 3 },
-    });
-
-    gsap.to(proxy, {
-      frame: TOTAL - 1,
-      snap: { snapTo: 1, duration: 0.1 },
-      ease: 'none',
-      scrollTrigger: { trigger: '#heroSection', start: 'top top', end: '40% top', scrub: 2 },
-      onUpdate: () => draw(proxy.frame),
     });
 
     // ── CALLIGRAPHY ────────────────────────────────────────────────
@@ -344,10 +328,6 @@
       closeCard();
     });
 
-    // ── TOUCH DETECTION ────────────────────────────────────────────
-    const isTouch = window.matchMedia('(pointer: coarse)').matches;
-
-
     // ── CURSOR ─────────────────────────────────────────────────────
     if (!isTouch) {
       const cursor = document.getElementById('cursor');
@@ -399,8 +379,6 @@
     }
 
     // ── INIT ───────────────────────────────────────────────────────
-    window.addEventListener('resize', resize);
-    resize();
   </script>
 </body>
 </html>
