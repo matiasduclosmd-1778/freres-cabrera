@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Frères Cabrera</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23000'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='14' fill='%23fff'>FC</text></svg>" />
   <link rel="stylesheet" href="https://use.typekit.net/psc3ebh.css" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -285,6 +286,7 @@
     function openCard() {
       if (cardOpen) return;
       cardOpen = true;
+      gsap.killTweensOf(productCard);
       productCard.style.pointerEvents = 'auto';
       gsap.fromTo(productCard,
         { opacity: 0, scale: 0.92, x: -16 },
@@ -296,6 +298,7 @@
       if (!cardOpen) return;
       cardOpen = false;
       cardSticky = false;
+      gsap.killTweensOf(productCard);
       gsap.to(productCard, {
         opacity: 0, scale: 0.92, x: -16, duration: 0.35, ease: 'power2.in',
         onComplete: () => { productCard.style.pointerEvents = 'none'; },
@@ -321,7 +324,7 @@
     const grainCtx    = grainCanvas.getContext('2d');
     grainCtx.imageSmoothingEnabled = false;
     const grainOff    = document.createElement('canvas');
-    grainOff.width = grainOff.height = 256;
+    grainOff.width = grainOff.height = 512;
     const grainOffCtx = grainOff.getContext('2d');
 
     function resizeGrain() {
@@ -330,7 +333,7 @@
     }
 
     (function tickGrain() {
-      const d = grainOffCtx.createImageData(256, 256);
+      const d = grainOffCtx.createImageData(512, 512);
       for (let i = 0; i < d.data.length; i += 4) {
         const v = Math.random() * 255 | 0;
         d.data[i] = d.data[i + 1] = d.data[i + 2] = v;
