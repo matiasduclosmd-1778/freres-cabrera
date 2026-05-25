@@ -150,7 +150,6 @@
   <section class="hero-scroll" id="heroSection">
     <div class="hero-sticky">
       <canvas class="hero-canvas" id="heroCanvas"></canvas>
-      <canvas class="grain-canvas" id="grainCanvas"></canvas>
       <img class="hero-logo" src="img/logo.png" alt="Frères" />
 
       <div class="hero-text" id="heroText">
@@ -346,31 +345,6 @@
     // ── TOUCH DETECTION ────────────────────────────────────────────
     const isTouch = window.matchMedia('(pointer: coarse)').matches;
 
-    // ── GRAIN ──────────────────────────────────────────────────────
-    const grainCanvas = document.getElementById('grainCanvas');
-    const grainCtx    = grainCanvas.getContext('2d');
-    grainCtx.imageSmoothingEnabled = false;
-    const grainSize   = isTouch ? 256 : 512;
-    const grainOff    = document.createElement('canvas');
-    grainOff.width = grainOff.height = grainSize;
-    const grainOffCtx = grainOff.getContext('2d');
-
-    function resizeGrain() {
-      grainCanvas.width  = grainCanvas.offsetWidth;
-      grainCanvas.height = grainCanvas.offsetHeight;
-    }
-
-    (function tickGrain() {
-      const d = grainOffCtx.createImageData(grainSize, grainSize);
-      for (let i = 0; i < d.data.length; i += 4) {
-        const v = Math.random() * 255 | 0;
-        d.data[i] = d.data[i + 1] = d.data[i + 2] = v;
-        d.data[i + 3] = 255;
-      }
-      grainOffCtx.putImageData(d, 0, 0);
-      grainCtx.drawImage(grainOff, 0, 0, grainCanvas.width, grainCanvas.height);
-      requestAnimationFrame(tickGrain);
-    }());
 
     // ── CURSOR ─────────────────────────────────────────────────────
     if (!isTouch) {
@@ -424,9 +398,7 @@
 
     // ── INIT ───────────────────────────────────────────────────────
     window.addEventListener('resize', resize);
-    window.addEventListener('resize', resizeGrain);
     resize();
-    resizeGrain();
   </script>
 </body>
 </html>
